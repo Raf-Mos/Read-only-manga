@@ -109,6 +109,50 @@ export const mangadxService = {
     }
   },
 
+  // Get newest manga with pagination (sorted by creation date)
+  async getNewestManga(page: number = 1, limit: number = 10): Promise<MangaResponse> {
+    try {
+      const offset = (page - 1) * limit;
+      const response = await api.get<MangaResponse>('/manga', {
+        params: {
+          'order[createdAt]': 'desc',
+          limit,
+          offset,
+          includes: ['cover_art', 'author', 'artist'],
+          contentRating: ['safe', 'suggestive']
+        },
+      });
+      return response.data;
+    } catch (error: any) {
+      console.error('Detailed error fetching newest manga:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        console.error('Error status:', error.response.status);
+      }
+      throw new Error('Failed to fetch newest manga');
+    }
+  },
+
+  // Get recently updated manga with pagination
+  async getUpdatedManga(page: number = 1, limit: number = 10): Promise<MangaResponse> {
+    try {
+      const offset = (page - 1) * limit;
+      const response = await api.get<MangaResponse>('/manga', {
+        params: {
+          'order[updatedAt]': 'desc',
+          limit,
+          offset,
+          includes: ['cover_art', 'author', 'artist'],
+          contentRating: ['safe', 'suggestive'],
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching updated manga:', error);
+      throw new Error('Failed to fetch updated manga');
+    }
+  },
+
   // Get cover image URL
   getCoverImageUrl(mangaId: string, fileName: string, size: 'small' | 'medium' | 'large' = 'medium'): string {
     const sizeMap = {
