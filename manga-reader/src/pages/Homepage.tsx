@@ -132,11 +132,11 @@ const Homepage: React.FC = () => {
         // Home Content
         <>
           {/* Welcome Section */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="text-center mb-12 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-8 border border-blue-200 dark:border-gray-600">
+            <h1 className="text-4xl font-bold text-blue-900 dark:text-white mb-4">
               Welcome to MangaReader
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
+            <p className="text-xl text-blue-700 dark:text-gray-400">
               Discover and read your favorite manga online
             </p>
           </div>

@@ -18,6 +18,22 @@
   }
 }
 
+@layer base {
+  /* Light mode with blue accents */
+  :root {
+    --primary-blue: #3b82f6;
+    --light-blue: #dbeafe;
+    --blue-accent: #1e40af;
+    --blue-text: #1d4ed8;
+  }
+  
+  /* Custom light mode background with blue tint */
+  body:not(.dark) {
+    background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+    min-height: 100vh;
+  }
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
