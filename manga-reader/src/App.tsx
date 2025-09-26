@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import Homepage from './pages/Homepage';
 import NewestPage from './pages/NewestPage';
 import UpdatedPage from './pages/UpdatedPage';
+import PopularPage from './pages/PopularPage';
 import MangaDetails from './pages/MangaDetails';
 import ChapterReader from './pages/ChapterReader';
 import { ThemeProvider } from './hooks/useTheme';
@@ -20,6 +21,7 @@ function App() {
               <Route path="/" element={<Homepage />} />
               <Route path="/newest" element={<NewestPage />} />
               <Route path="/updated" element={<UpdatedPage />} />
+              <Route path="/popular" element={<PopularPage />} />
               <Route path="/manga/:id" element={<MangaDetails />} />
               <Route path="/chapter/:id" element={<ChapterReader />} />
             </Routes>

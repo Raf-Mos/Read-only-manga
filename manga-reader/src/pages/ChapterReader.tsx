@@ -17,16 +17,28 @@ const ChapterReader: React.FC = () => {
 
   useEffect(() => {
     const fetchChapterImages = async () => {
-      if (!id) return;
+      if (!id) {
+        setError('No chapter ID provided');
+        setLoading(false);
+        return;
+      }
 
       try {
         setLoading(true);
         setError(null);
         
+        console.log('ChapterReader: Fetching images for chapter ID:', id);
         const data = await mangadxService.getChapterImages(id);
+        
+        if (!data || !data.chapter || !data.chapter.data || data.chapter.data.length === 0) {
+          throw new Error('No image data available for this chapter');
+        }
+        
         setChapterData(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('ChapterReader error:', err);
+        const errorMessage = err instanceof Error ? err.message : 'An error occurred loading chapter images';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -105,18 +117,34 @@ const ChapterReader: React.FC = () => {
   if (error || !chapterData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-        <div className="text-center">
+        <div className="text-center max-w-md mx-auto p-6">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-            {error || 'Chapter not found'}
+            Failed to fetch chapter images
           </h2>
-          <Link 
-            to="/" 
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Home
-          </Link>
+          <p className="text-gray-600 dark:text-gray-400 mb-6 text-sm">
+            {error || 'This chapter may not have images available or the chapter ID is invalid.'}
+          </p>
+          <div className="space-y-3">
+            <button 
+              onClick={() => window.history.back()}
+              className="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Previous Page
+            </button>
+            <Link 
+              to="/" 
+              className="w-full inline-flex items-center justify-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              Back to Home
+            </Link>
+          </div>
+          {id && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
+              Chapter ID: {id}
+            </p>
+          )}
         </div>
       </div>
     );

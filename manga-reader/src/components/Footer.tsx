@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Heart, Github, Mail, Book, Star } from 'lucide-react';
 
 const Footer: React.FC = () => {
@@ -36,34 +37,37 @@ const Footer: React.FC = () => {
             </h3>
             <ul className="space-y-2">
               <li>
-                <a
-                  href="/"
+                <Link
+                  to="/"
                   className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm"
                 >
                   Home
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/newest"
+                <Link
+                  to="/newest"
                   className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm"
                 >
                   Newest Manga
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/updated"
+                <Link
+                  to="/updated"
                   className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm"
                 >
                   Recently Updated
-                </a>
+                </Link>
               </li>
               <li>
-                <span className="text-gray-600 dark:text-gray-400 text-sm flex items-center">
+                <Link
+                  to="/popular"
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm flex items-center"
+                >
                   <Star className="h-3 w-3 mr-1 text-yellow-500" />
                   Popular Manga
-                </span>
+                </Link>
               </li>
             </ul>
           </div>

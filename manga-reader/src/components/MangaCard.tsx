@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Manga } from '../types';
 import mangadxService from '../services/mangadx';
+import SmartImage from './SmartImage';
 
 interface MangaCardProps {
   manga: Manga;
@@ -12,6 +13,11 @@ const MangaCard: React.FC<MangaCardProps> = ({ manga }) => {
   const description = mangadxService.getEnglishDescription(manga);
   const coverUrl = mangadxService.getCoverArt(manga);
   const authors = mangadxService.getAuthors(manga);
+  
+  // Get fallback URLs for the image
+  const coverRelation = manga.relationships.find((rel: any) => rel.type === 'cover_art');
+  const fallbackUrls = coverRelation?.attributes?.fileName ? 
+    mangadxService.getCoverImageUrlWithFallback(manga.id, coverRelation.attributes.fileName, 'small') : [];
 
   // Truncate description to a reasonable length
   const truncatedDescription = description.length > 150 
@@ -26,21 +32,13 @@ const MangaCard: React.FC<MangaCardProps> = ({ manga }) => {
       <div className="flex">
         {/* Cover Image */}
         <div className="w-24 h-32 flex-shrink-0">
-          {coverUrl ? (
-            <img
-              src={coverUrl}
-              alt={title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = 'https://via.placeholder.com/96x128?text=No+Image';
-              }}
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-              <span className="text-gray-400 text-xs text-center">No Image</span>
-            </div>
-          )}
+          <SmartImage
+            src={coverUrl}
+            alt={title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+            fallbackSrcs={fallbackUrls.slice(1)} // Skip the first one since it's already used as src
+            placeholder="https://via.placeholder.com/96x128/1F2937/9CA3AF?text=No+Cover"
+          />
         </div>
 
         {/* Content */}

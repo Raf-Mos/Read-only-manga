@@ -44,6 +44,12 @@ const Navbar: React.FC = () => {
               >
                 Updated
               </Link>
+              <Link
+                to="/popular"
+                className="text-blue-600 dark:text-white hover:text-blue-800 dark:hover:text-blue-400 transition-colors font-semibold"
+              >
+                Popular
+              </Link>
             </div>
           </div>
 
@@ -108,6 +114,13 @@ const Navbar: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Updated
+              </Link>
+              <Link
+                to="/popular"
+                className="block px-3 py-2 text-blue-600 dark:text-white hover:text-blue-800 dark:hover:text-blue-400 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-md transition-colors font-semibold"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Popular
               </Link>
             </div>
           </div>

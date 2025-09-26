@@ -27,6 +27,7 @@ const MangaDetails: React.FC = () => {
         // Fetch chapters
         setChaptersLoading(true);
         const chaptersResponse = await mangadxService.getMangaChapters(id);
+        console.log('Fetched chapters for manga:', id, chaptersResponse.data);
         setChapters(chaptersResponse.data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Star, Calendar } from 'lucide-react';
 import { Manga } from '../types';
 import mangadxService from '../services/mangadx';
+import SmartImage from './SmartImage';
 
 interface MangaCardCarouselProps {
   manga: Manga;
@@ -13,6 +14,11 @@ const MangaCardCarousel: React.FC<MangaCardCarouselProps> = ({ manga }) => {
   const description = mangadxService.getEnglishDescription(manga);
   const coverUrl = mangadxService.getCoverArt(manga);
   const authors = mangadxService.getAuthors(manga);
+  
+  // Get fallback URLs for the image
+  const coverRelation = manga.relationships.find((rel: any) => rel.type === 'cover_art');
+  const fallbackUrls = coverRelation?.attributes?.fileName ? 
+    mangadxService.getCoverImageUrlWithFallback(manga.id, coverRelation.attributes.fileName, 'medium') : [];
 
   // Truncate description to a shorter length for carousel
   const truncatedDescription = description.length > 100 
@@ -25,22 +31,14 @@ const MangaCardCarousel: React.FC<MangaCardCarouselProps> = ({ manga }) => {
       className="group block bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 transform hover:-translate-y-2"
     >
       {/* Cover Image */}
-      <div className="aspect-[3/4] overflow-hidden">
-        {coverUrl ? (
-          <img
-            src={coverUrl}
-            alt={title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = 'https://via.placeholder.com/300x400/374151/9CA3AF?text=No+Image';
-            }}
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center">
-            <span className="text-gray-500 dark:text-gray-400 text-sm">No Image</span>
-          </div>
-        )}
+      <div className="relative aspect-[3/4] overflow-hidden">
+        <SmartImage
+          src={coverUrl}
+          alt={title}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          fallbackSrcs={fallbackUrls.slice(1)} // Skip the first one since it's already used as src
+          placeholder="https://via.placeholder.com/300x400/1F2937/9CA3AF?text=No+Cover"
+        />
         
         {/* Overlay on hover */}
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300" />
