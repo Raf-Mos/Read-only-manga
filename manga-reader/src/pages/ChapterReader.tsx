@@ -47,6 +47,8 @@ const ChapterReader: React.FC = () => {
     if (chapterData && currentPage < chapterData.chapter.data.length - 1) {
       setCurrentPage(prev => prev + 1);
       setImageLoading(true);
+      // Scroll to top when going to next page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [chapterData, currentPage]);
 
@@ -54,6 +56,8 @@ const ChapterReader: React.FC = () => {
     if (currentPage > 0) {
       setCurrentPage(prev => prev - 1);
       setImageLoading(true);
+      // Scroll to top when going to previous page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentPage]);
 
