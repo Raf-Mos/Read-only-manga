@@ -4,8 +4,8 @@ m    // Make the request to MangaDx API using native Node.js HTTPS
     const response = await makeRequest(url.toString());
 
     if (!response.ok) {
-      console.error(`MangaDx API error: ${response.status} ${response.statusText}`);
-      throw new Error(`MangaDx API responded with status: ${response.status}`);
+      console.error(`MangaDex API error: ${response.status} ${response.statusText}`);
+      throw new Error(`MangaDex API responded with status: ${response.status}`);
     }
 
     const data = await response.json(); const https = require('https');
