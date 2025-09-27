@@ -1,12 +1,15 @@
 import axios from 'axios';
 import { MangaResponse, Manga, ChapterResponse, ChapterImagesResponse } from '../types';
 
-const BASE_URL = 'https://api.mangadex.org';
+// Use proxy API in production, direct API in development
+const BASE_URL = process.env.NODE_ENV === 'production' 
+  ? '/api/mangadx' 
+  : 'https://api.mangadx.org';
 
 // Create axios instance with default config
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 10000,
+  timeout: 15000,
 });
 
 export const mangadxService = {
@@ -75,7 +78,6 @@ export const mangadxService = {
         },
       });
       
-      // Filter out chapters that don't have pages or are external links
       const validChapters = response.data.data.filter(chapter => 
         chapter.attributes.pages > 0 && 
         !chapter.attributes.externalUrl
@@ -94,18 +96,11 @@ export const mangadxService = {
   // Get chapter images
   async getChapterImages(chapterId: string): Promise<ChapterImagesResponse> {
     try {
-      console.log('Fetching chapter images for ID:', chapterId);
       const response = await api.get<ChapterImagesResponse>(`/at-home/server/${chapterId}`);
-      console.log('Chapter images response:', response.data);
       return response.data;
     } catch (error: any) {
-      console.error('Detailed error fetching chapter images:', error);
-      console.error('Chapter ID:', chapterId);
-      if (error.response) {
-        console.error('Error response status:', error.response.status);
-        console.error('Error response data:', error.response.data);
-      }
-      throw new Error(`Failed to fetch chapter images for chapter ${chapterId}: ${error.message || 'Unknown error'}`);
+      console.error('Error fetching chapter images:', error);
+      throw new Error(`Failed to fetch chapter images: ${error.message}`);
     }
   },
 
@@ -127,7 +122,7 @@ export const mangadxService = {
     }
   },
 
-  // Get newest manga with pagination (sorted by creation date)
+  // Get newest manga with pagination
   async getNewestManga(page: number = 1, limit: number = 10): Promise<MangaResponse> {
     try {
       const offset = (page - 1) * limit;
@@ -141,12 +136,8 @@ export const mangadxService = {
         },
       });
       return response.data;
-    } catch (error: any) {
-      console.error('Detailed error fetching newest manga:', error);
-      if (error.response) {
-        console.error('Error response:', error.response.data);
-        console.error('Error status:', error.response.status);
-      }
+    } catch (error) {
+      console.error('Error fetching newest manga:', error);
       throw new Error('Failed to fetch newest manga');
     }
   },
@@ -171,7 +162,7 @@ export const mangadxService = {
     }
   },
 
-  // Get popular manga with pagination (sorted by followed count)
+  // Get popular manga with pagination
   async getPopularMangaPaginated(page: number = 1, limit: number = 10): Promise<MangaResponse> {
     try {
       const offset = (page - 1) * limit;
@@ -198,17 +189,17 @@ export const mangadxService = {
       medium: '512', 
       large: '1024'
     };
-    return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}.${sizeMap[size]}.jpg`;
+    return `https://uploads.mangadx.org/covers/${mangaId}/${fileName}.${sizeMap[size]}.jpg`;
   },
 
-  // Get cover image URL with multiple format fallback
+  // Get cover image URL with fallback
   getCoverImageUrlWithFallback(mangaId: string, fileName: string, size: 'small' | 'medium' | 'large' = 'medium'): string[] {
     const sizeMap = {
       small: '256',
       medium: '512', 
       large: '1024'
     };
-    const baseUrl = `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`;
+    const baseUrl = `https://uploads.mangadx.org/covers/${mangaId}/${fileName}`;
     return [
       `${baseUrl}.${sizeMap[size]}.jpg`,
       `${baseUrl}.jpg`,
@@ -223,31 +214,25 @@ export const mangadxService = {
     return `${baseUrl}/${quality}/${chapterHash}/${fileName}`;
   },
 
-  // Helper function to get English title or fallback
+  // Helper functions
   getEnglishTitle(manga: Manga): string {
     const titleObj = manga.attributes.title;
     return titleObj.en || titleObj['ja-ro'] || titleObj.ja || Object.values(titleObj)[0] || 'Unknown Title';
   },
 
-  // Helper function to get English description or fallback
   getEnglishDescription(manga: Manga): string {
     const descObj = manga.attributes.description;
     return descObj.en || descObj['ja-ro'] || descObj.ja || Object.values(descObj)[0] || 'No description available';
   },
 
-  // Helper function to get cover art from relationships
   getCoverArt(manga: Manga): string | null {
     const coverRelation = manga.relationships.find((rel: any) => rel.type === 'cover_art');
     if (coverRelation?.attributes?.fileName) {
-      const imageUrl = this.getCoverImageUrl(manga.id, coverRelation.attributes.fileName);
-      console.log('Generated cover URL for', manga.id, ':', imageUrl);
-      return imageUrl;
+      return this.getCoverImageUrl(manga.id, coverRelation.attributes.fileName);
     }
-    console.log('No cover art found for manga:', manga.id);
     return null;
   },
 
-  // Helper function to get authors from relationships
   getAuthors(manga: Manga): string[] {
     return manga.relationships
       .filter((rel: any) => rel.type === 'author')
@@ -255,7 +240,6 @@ export const mangadxService = {
       .filter(Boolean);
   },
 
-  // Helper function to get artists from relationships
   getArtists(manga: Manga): string[] {
     return manga.relationships
       .filter((rel: any) => rel.type === 'artist')
