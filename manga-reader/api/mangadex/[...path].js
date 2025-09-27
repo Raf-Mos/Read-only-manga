@@ -1,6 +1,6 @@
 const { URL } = require('url');
 
-m    // Make the request to MangaDx API using native Node.js HTTPS
+m    // Make the request to MangaDex API using native Node.js HTTPS
     const response = await makeRequest(url.toString());
 
     if (!response.ok) {
