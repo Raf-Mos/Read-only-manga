@@ -26,7 +26,7 @@ function makeRequest(url) {
     });
     
     request.on('error', reject);
-    request.setTimeout(10000, () => {
+    request.setTimeout(30000, () => {
       request.destroy();
       reject(new Error('Request timeout'));
     });
@@ -67,7 +67,7 @@ module.exports = async function handler(req, res) {
 
     console.log('Proxying request to:', url.toString());
 
-    // Make the request to MangaDx API using makeRequest
+    // Make the request to mangadex API using makeRequest
     const response = await makeRequest(url.toString());
 
     if (!response.ok) {
