@@ -1,4 +1,6 @@
-export default async function handler(req, res) {
+export default asyn    // Construct the MangaDex API URL
+    const pathString = Array.isArray(path) ? path.join('/') : path || '';
+    const url = new URL(`https://api.mangadex.org/${pathString}`);unction handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');

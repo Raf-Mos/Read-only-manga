@@ -4,7 +4,7 @@ import { MangaResponse, Manga, ChapterResponse, ChapterImagesResponse } from '..
 // Use proxy API in production, direct API in development
 const BASE_URL = process.env.NODE_ENV === 'production' 
   ? '/api/mangadx' 
-  : 'https://api.mangadx.org';
+  : 'https://api.mangadex.org';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -189,7 +189,7 @@ export const mangadxService = {
       medium: '512', 
       large: '1024'
     };
-    return `https://uploads.mangadx.org/covers/${mangaId}/${fileName}.${sizeMap[size]}.jpg`;
+    return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}.${sizeMap[size]}.jpg`;
   },
 
   // Get cover image URL with fallback
@@ -199,7 +199,7 @@ export const mangadxService = {
       medium: '512', 
       large: '1024'
     };
-    const baseUrl = `https://uploads.mangadx.org/covers/${mangaId}/${fileName}`;
+    const baseUrl = `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`;
     return [
       `${baseUrl}.${sizeMap[size]}.jpg`,
       `${baseUrl}.jpg`,
