@@ -1,5 +1,47 @@
-const https = require('https');
 const { URL } = require('url');
+
+m    // Make the request to MangaDx API using native Node.js HTTPS
+    const response = await makeRequest(url.toString());
+
+    if (!response.ok) {
+      console.error(`MangaDx API error: ${response.status} ${response.statusText}`);
+      throw new Error(`MangaDx API responded with status: ${response.status}`);
+    }
+
+    const data = await response.json(); const https = require('https');
+const { URL } = require('url');
+
+function makeRequest(url) {
+  return new Promise((resolve, reject) => {
+    const request = https.get(url, (response) => {
+      let data = '';
+      
+      response.on('data', chunk => {
+        data += chunk;
+      });
+      
+      response.on('end', () => {
+        try {
+          const jsonData = JSON.parse(data);
+          resolve({
+            ok: response.statusCode >= 200 && response.statusCode < 300,
+            status: response.statusCode,
+            statusText: response.statusMessage,
+            json: () => Promise.resolve(jsonData)
+          });
+        } catch (error) {
+          reject(new Error('Invalid JSON response'));
+        }
+      });
+    });
+    
+    request.on('error', reject);
+    request.setTimeout(10000, () => {
+      request.destroy();
+      reject(new Error('Request timeout'));
+    });
+  });
+}
 
 module.exports = async function handler(req, res) {
   // Enable CORS
