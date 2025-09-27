@@ -5,7 +5,7 @@ import ViewToggle from '../components/ViewToggle';
 import MangaGrid from '../components/MangaGrid';
 import Pagination from '../components/Pagination';
 import { Manga } from '../types';
-import mangadxService from '../services/mangadx';
+import mangadexService from '../services/mangadex';
 
 const NewestPage: React.FC = () => {
   const [manga, setManga] = useState<Manga[]>([]);
@@ -22,7 +22,7 @@ const NewestPage: React.FC = () => {
         setLoading(true);
         setError(null);
         
-        const response = await mangadxService.getNewestManga(currentPage, itemsPerPage);
+        const response = await mangadexService.getNewestManga(currentPage, itemsPerPage);
         setManga(response.data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch newest manga');

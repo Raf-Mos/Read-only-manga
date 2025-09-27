@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, ChevronLeft, ChevronRight, AlertCircle, ZoomIn, ZoomOut } from 'lucide-react';
 import Loading from '../components/Loading';
 import { ChapterImagesResponse } from '../types';
-import mangadxService from '../services/mangadx';
+import mangadexService from '../services/mangadex';
 
 const ChapterReader: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -28,7 +28,7 @@ const ChapterReader: React.FC = () => {
         setError(null);
         
         console.log('ChapterReader: Fetching images for chapter ID:', id);
-        const data = await mangadxService.getChapterImages(id);
+        const data = await mangadexService.getChapterImages(id);
         
         if (!data || !data.chapter || !data.chapter.data || data.chapter.data.length === 0) {
           throw new Error('No image data available for this chapter');
@@ -150,7 +150,7 @@ const ChapterReader: React.FC = () => {
     );
   }
 
-  const currentImageUrl = mangadxService.getChapterPageUrl(
+  const currentImageUrl = mangadexService.getChapterPageUrl(
     chapterData.baseUrl,
     chapterData.chapter.hash,
     chapterData.chapter.data[currentPage]

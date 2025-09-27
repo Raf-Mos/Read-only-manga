@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/mangadx/[...path].js": {
+    "api/mangadex/[...path].js": {
       "maxDuration": 30
     }
   },

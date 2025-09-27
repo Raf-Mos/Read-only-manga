@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Calendar, Star, Users, AlertCircle } from 'lucide-react';
 import Loading from '../components/Loading';
 import { Manga, Chapter } from '../types';
-import mangadxService from '../services/mangadx';
+import mangadexService from '../services/mangadex';
 
 const MangaDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,12 +21,12 @@ const MangaDetails: React.FC = () => {
         setLoading(true);
         setError(null);
         
-        const mangaData = await mangadxService.getMangaById(id);
+        const mangaData = await mangadexService.getMangaById(id);
         setManga(mangaData);
 
         // Fetch chapters
         setChaptersLoading(true);
-        const chaptersResponse = await mangadxService.getMangaChapters(id);
+        const chaptersResponse = await mangadexService.getMangaChapters(id);
         console.log('Fetched chapters for manga:', id, chaptersResponse.data);
         setChapters(chaptersResponse.data);
       } catch (err) {
@@ -71,11 +71,11 @@ const MangaDetails: React.FC = () => {
     );
   }
 
-  const title = mangadxService.getEnglishTitle(manga);
-  const description = mangadxService.getEnglishDescription(manga);
-  const coverUrl = mangadxService.getCoverArt(manga);
-  const authors = mangadxService.getAuthors(manga);
-  const artists = mangadxService.getArtists(manga);
+  const title = mangadexService.getEnglishTitle(manga);
+  const description = mangadexService.getEnglishDescription(manga);
+  const coverUrl = mangadexService.getCoverArt(manga);
+  const authors = mangadexService.getAuthors(manga);
+  const artists = mangadexService.getArtists(manga);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

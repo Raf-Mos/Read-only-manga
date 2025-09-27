@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Calendar } from 'lucide-react';
 import { Manga } from '../types';
-import mangadxService from '../services/mangadx';
+import mangadexService from '../services/mangadex';
 import SmartImage from './SmartImage';
 
 interface MangaCardCarouselProps {
@@ -10,15 +10,15 @@ interface MangaCardCarouselProps {
 }
 
 const MangaCardCarousel: React.FC<MangaCardCarouselProps> = ({ manga }) => {
-  const title = mangadxService.getEnglishTitle(manga);
-  const description = mangadxService.getEnglishDescription(manga);
-  const coverUrl = mangadxService.getCoverArt(manga);
-  const authors = mangadxService.getAuthors(manga);
+  const title = mangadexService.getEnglishTitle(manga);
+  const description = mangadexService.getEnglishDescription(manga);
+  const coverUrl = mangadexService.getCoverArt(manga);
+  const authors = mangadexService.getAuthors(manga);
   
   // Get fallback URLs for the image
   const coverRelation = manga.relationships.find((rel: any) => rel.type === 'cover_art');
   const fallbackUrls = coverRelation?.attributes?.fileName ? 
-    mangadxService.getCoverImageUrlWithFallback(manga.id, coverRelation.attributes.fileName, 'medium') : [];
+    mangadexService.getCoverImageUrlWithFallback(manga.id, coverRelation.attributes.fileName, 'medium') : [];
 
   // Truncate description to a shorter length for carousel
   const truncatedDescription = description.length > 100 

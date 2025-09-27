@@ -2,17 +2,17 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, User } from 'lucide-react';
 import { Manga } from '../types';
-import mangadxService from '../services/mangadx';
+import mangadexService from '../services/mangadex';
 
 interface MangaListItemProps {
   manga: Manga;
 }
 
 const MangaListItem: React.FC<MangaListItemProps> = ({ manga }) => {
-  const title = mangadxService.getEnglishTitle(manga);
-  const description = mangadxService.getEnglishDescription(manga);
-  const coverUrl = mangadxService.getCoverArt(manga);
-  const authors = mangadxService.getAuthors(manga);
+  const title = mangadexService.getEnglishTitle(manga);
+  const description = mangadexService.getEnglishDescription(manga);
+  const coverUrl = mangadexService.getCoverArt(manga);
+  const authors = mangadexService.getAuthors(manga);
 
   // Truncate description for list view
   const truncatedDescription = description.length > 200 

@@ -5,7 +5,7 @@ import MangaCard from '../components/MangaCard';
 import Carousel from '../components/Carousel';
 import Loading from '../components/Loading';
 import { Manga } from '../types';
-import mangadxService from '../services/mangadx';
+import mangadexService from '../services/mangadex';
 
 const Homepage: React.FC = () => {
   const [popularManga, setPopularManga] = useState<Manga[]>([]);
@@ -24,8 +24,8 @@ const Homepage: React.FC = () => {
         setError(null);
         
         const [popular, recent] = await Promise.all([
-          mangadxService.getPopularManga(),
-          mangadxService.getRecentlyUpdatedManga()
+          mangadexService.getPopularManga(),
+          mangadexService.getRecentlyUpdatedManga()
         ]);
         
         setPopularManga(popular);
@@ -50,7 +50,7 @@ const Homepage: React.FC = () => {
       try {
         setSearchLoading(true);
         setError(null);
-        const results = await mangadxService.searchManga(searchQuery);
+        const results = await mangadexService.searchManga(searchQuery);
         setSearchResults(results);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Search failed');

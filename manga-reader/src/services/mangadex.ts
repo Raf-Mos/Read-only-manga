@@ -3,16 +3,19 @@ import { MangaResponse, Manga, ChapterResponse, ChapterImagesResponse } from '..
 
 // Use proxy API in production, direct API in development
 const BASE_URL = process.env.NODE_ENV === 'production' 
-  ? '/api/mangadx' 
+  ? '/api/mangadex' 
   : 'https://api.mangadex.org';
+
+console.log('Environment:', process.env.NODE_ENV);
+console.log('API Base URL:', BASE_URL);
 
 // Create axios instance with default config
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 15000,
+  timeout: 30000, // Increased timeout for Vercel
 });
 
-export const mangadxService = {
+export const mangadexService = {
   // Get popular manga (most followed)
   async getPopularManga(): Promise<Manga[]> {
     try {
@@ -248,4 +251,4 @@ export const mangadxService = {
   }
 };
 
-export default mangadxService;
+export default mangadexService;

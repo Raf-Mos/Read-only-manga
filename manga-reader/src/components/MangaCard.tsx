@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Manga } from '../types';
-import mangadxService from '../services/mangadx';
+import mangadexService from '../services/mangadex';
 import SmartImage from './SmartImage';
 
 interface MangaCardProps {
@@ -9,15 +9,15 @@ interface MangaCardProps {
 }
 
 const MangaCard: React.FC<MangaCardProps> = ({ manga }) => {
-  const title = mangadxService.getEnglishTitle(manga);
-  const description = mangadxService.getEnglishDescription(manga);
-  const coverUrl = mangadxService.getCoverArt(manga);
-  const authors = mangadxService.getAuthors(manga);
+  const title = mangadexService.getEnglishTitle(manga);
+  const description = mangadexService.getEnglishDescription(manga);
+  const coverUrl = mangadexService.getCoverArt(manga);
+  const authors = mangadexService.getAuthors(manga);
   
   // Get fallback URLs for the image
   const coverRelation = manga.relationships.find((rel: any) => rel.type === 'cover_art');
   const fallbackUrls = coverRelation?.attributes?.fileName ? 
-    mangadxService.getCoverImageUrlWithFallback(manga.id, coverRelation.attributes.fileName, 'small') : [];
+    mangadexService.getCoverImageUrlWithFallback(manga.id, coverRelation.attributes.fileName, 'small') : [];
 
   // Truncate description to a reasonable length
   const truncatedDescription = description.length > 150 

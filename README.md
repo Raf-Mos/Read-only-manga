@@ -73,7 +73,7 @@ A modern, responsive manga reader web application built with React, TypeScript, 
 - **Lucide React** - Beautiful, customizable icons
 
 ### API & Data
-- **MangaDX API** - Comprehensive manga database and image serving
+- **MangaDex API** - Comprehensive manga database and image serving
 - **CORS Proxy** - Handle cross-origin requests in development
 
 ## 📁 Project Structure
@@ -101,7 +101,7 @@ manga-reader/
 │   │   ├── MangaDetails.tsx
 │   │   └── ChapterReader.tsx
 │   ├── services/           # API services
-│   │   └── mangadx.ts
+│   │   └── mangadex.ts
 │   ├── types/              # TypeScript type definitions
 │   │   └── index.ts
 │   ├── hooks/              # Custom React hooks
@@ -119,7 +119,7 @@ manga-reader/
 - **Homepage**: Browse popular and recently updated manga
 - **Newest**: Discover the latest manga releases
 - **Updated**: Find recently updated manga chapters
-- **Popular**: Explore most-followed manga on MangaDx
+- **Popular**: Explore most-followed manga on MangaDex
 - **Search**: Use the search bar to find specific manga
 
 ### Reading Manga
@@ -194,7 +194,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **MangaDX API** - For providing comprehensive manga data
+- **MangaDex API** - For providing comprehensive manga data
 - **React Team** - For the amazing React framework
 - **TailwindCSS** - For the utility-first CSS framework
 - **Lucide Icons** - For beautiful, customizable icons
@@ -203,7 +203,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you encounter any issues or have questions:
 - Create an issue on GitHub
-- Check the [MangaDx API Documentation](https://api.mangadx.org/docs/)
+- Check the [MangaDex API Documentation](https://api.mangadex.org/docs/)
 
 ## 🔮 Future Enhancements
 
