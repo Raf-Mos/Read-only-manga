@@ -1,4 +1,7 @@
-export default async function handler(req, res) {
+const https = require('https');
+const { URL } = require('url');
+
+module.exports = async function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -32,7 +35,7 @@ export default async function handler(req, res) {
 
     console.log('Proxying request to:', url.toString());
 
-    // Make the request to MangaDex API
+    // Make the request to MangaDex API using fetch
     const response = await fetch(url.toString(), {
       method: req.method,
       headers: {
@@ -42,16 +45,19 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
+      console.error(`MangaDex API error: ${response.status} ${response.statusText}`);
       throw new Error(`MangaDex API responded with status: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('Successfully fetched data from MangaDex API');
     res.status(200).json(data);
   } catch (error) {
     console.error('Proxy error:', error);
     res.status(500).json({ 
-      error: 'Failed to fetch from MangaDx API',
-      details: error.message 
+      error: 'Failed to fetch from MangaDex API',
+      details: error.message,
+      url: req.url
     });
   }
-}
+};
