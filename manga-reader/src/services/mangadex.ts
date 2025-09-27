@@ -3,7 +3,7 @@ import { MangaResponse, Manga, ChapterResponse, ChapterImagesResponse } from '..
 
 // Use proxy API in production, direct API in development
 const BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'manga-reader/api/mangadex' 
+  ? '/api/mangadex' 
   : 'https://api.mangadex.org';
 
 console.log('Environment:', process.env.NODE_ENV);
