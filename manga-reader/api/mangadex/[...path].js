@@ -20,12 +20,18 @@ function makeRequest(url) {
             json: () => Promise.resolve(jsonData)
           });
         } catch (error) {
+          console.error('JSON Parse Error:', error.message);
+          console.error('Response data:', data.substring(0, 500)); // Log first 500 chars
           reject(new Error('Invalid JSON response'));
         }
       });
     });
-    
-    request.on('error', reject);
+
+    request.on('error', (error) => {
+      console.error('Request Error:', error.message);
+      reject(error);
+    });
+
     request.setTimeout(30000, () => {
       request.destroy();
       reject(new Error('Request timeout'));
@@ -49,11 +55,18 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    // Get the path from the request
-    const { path, ...queryParams } = req.query;
+    // Extract path and query parameters
+    const { path = [], ...queryParams } = req.query;
     
-    // Construct the MangaDex API URL
-    const pathString = Array.isArray(path) ? path.join('/') : path || '';
+    // Remove the path from queryParams if it exists there
+    delete queryParams.path;
+    
+    // Construct the MangaDex API URL properly
+    const pathString = Array.isArray(path) ? path.join('/') : (path || '');
+    console.log('Path extracted:', pathString);
+    console.log('Query params:', queryParams);
+
+    // Build the correct URL
     const url = new URL(`https://api.mangadex.org/${pathString}`);
     
     // Add query parameters
@@ -80,6 +93,7 @@ module.exports = async function handler(req, res) {
     res.status(200).json(data);
   } catch (error) {
     console.error('Proxy error:', error);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({ 
       error: 'Failed to fetch from MangaDex API',
       details: error.message,
