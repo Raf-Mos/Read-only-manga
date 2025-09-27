@@ -1,6 +1,4 @@
-export default asyn    // Construct the MangaDex API URL
-    const pathString = Array.isArray(path) ? path.join('/') : path || '';
-    const url = new URL(`https://api.mangadex.org/${pathString}`);unction handler(req, res) {
+export default async function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -19,7 +17,7 @@ export default asyn    // Construct the MangaDex API URL
     // Get the path from the request
     const { path, ...queryParams } = req.query;
     
-    // Construct the MangaDx API URL
+    // Construct the MangaDex API URL
     const pathString = Array.isArray(path) ? path.join('/') : path || '';
     const url = new URL(`https://api.mangadex.org/${pathString}`);
     
@@ -34,7 +32,7 @@ export default asyn    // Construct the MangaDex API URL
 
     console.log('Proxying request to:', url.toString());
 
-    // Make the request to MangaDx API
+    // Make the request to MangaDex API
     const response = await fetch(url.toString(), {
       method: req.method,
       headers: {
@@ -44,7 +42,7 @@ export default asyn    // Construct the MangaDex API URL
     });
 
     if (!response.ok) {
-      throw new Error(`MangaDx API responded with status: ${response.status}`);
+      throw new Error(`MangaDex API responded with status: ${response.status}`);
     }
 
     const data = await response.json();
