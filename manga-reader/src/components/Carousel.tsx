@@ -34,7 +34,8 @@ const Carousel: React.FC<CarouselProps> = ({ manga, title, icon }) => {
     return () => window.removeEventListener('resize', updateItemsPerView);
   }, []);
 
-  const maxIndex = Math.max(0, manga.length - itemsPerView);
+  const safeLength = Array.isArray(manga) ? manga.length : 0;
+  const maxIndex = Math.max(0, safeLength - itemsPerView);
 
   const nextSlide = () => {
     setCurrentIndex((prev) => Math.min(prev + 1, maxIndex));
@@ -45,7 +46,7 @@ const Carousel: React.FC<CarouselProps> = ({ manga, title, icon }) => {
   };
 
   const goToSlide = (index: number) => {
-    setCurrentIndex(Math.min(index, maxIndex));
+    setCurrentIndex(Math.min(Math.max(0, index), maxIndex));
   };
 
   if (manga.length === 0) return null;
@@ -96,7 +97,7 @@ const Carousel: React.FC<CarouselProps> = ({ manga, title, icon }) => {
             transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`
           }}
         >
-          {manga.map((mangaItem, index) => (
+          {Array.isArray(manga) && manga.map((mangaItem, index) => (
             <div
               key={mangaItem.id}
               className={`flex-shrink-0 px-2 ${

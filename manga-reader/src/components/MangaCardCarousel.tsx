@@ -13,15 +13,17 @@ const MangaCardCarousel: React.FC<MangaCardCarouselProps> = ({ manga }) => {
   const title = mangadexService.getEnglishTitle(manga);
   const description = mangadexService.getEnglishDescription(manga);
   const coverUrl = mangadexService.getCoverArt(manga);
-  const authors = mangadexService.getAuthors(manga);
+  const authors = Array.isArray(manga.relationships) ? mangadexService.getAuthors(manga) : [];
   
   // Get fallback URLs for the image
-  const coverRelation = manga.relationships.find((rel: any) => rel.type === 'cover_art');
+  const coverRelation = Array.isArray(manga.relationships)
+    ? manga.relationships.find((rel: any) => rel.type === 'cover_art')
+    : undefined;
   const fallbackUrls = coverRelation?.attributes?.fileName ? 
     mangadexService.getCoverImageUrlWithFallback(manga.id, coverRelation.attributes.fileName, 'medium') : [];
 
   // Truncate description to a shorter length for carousel
-  const truncatedDescription = description.length > 100 
+  const truncatedDescription = (description || '').length > 100 
     ? `${description.substring(0, 100)}...` 
     : description;
 
@@ -84,7 +86,7 @@ const MangaCardCarousel: React.FC<MangaCardCarouselProps> = ({ manga }) => {
 
         {/* Tags */}
         <div className="flex flex-wrap gap-1 mt-3">
-          {manga.attributes.tags.slice(0, 2).map((tag) => (
+          {Array.isArray(manga.attributes?.tags) && manga.attributes.tags.slice(0, 2).map((tag) => (
             <span
               key={tag.id}
               className="inline-block px-2 py-1 text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full"
@@ -92,7 +94,7 @@ const MangaCardCarousel: React.FC<MangaCardCarouselProps> = ({ manga }) => {
               {tag.attributes.name.en || Object.values(tag.attributes.name)[0]}
             </span>
           ))}
-          {manga.attributes.tags.length > 2 && (
+          {Array.isArray(manga.attributes?.tags) && manga.attributes.tags.length > 2 && (
             <span className="inline-block px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">
               +{manga.attributes.tags.length - 2}
             </span>

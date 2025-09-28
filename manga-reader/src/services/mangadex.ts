@@ -14,13 +14,28 @@ console.log('API Base URL:', BASE_URL);
 const api = axios.create({
   baseURL: BASE_URL,
   timeout: 30000, // Increased timeout for Vercel
+  headers: {
+    Accept: 'application/json',
+  },
+  withCredentials: false,
 });
+
+// Small runtime helpers to validate upstream responses
+function ensureArray<T>(value: any, fallback: T[] = []): T[] {
+  return Array.isArray(value) ? value : fallback;
+}
+
+function ensureObject<T extends object>(value: any, errorMessage: string): T {
+  if (value && typeof value === 'object') return value as T;
+  throw new Error(errorMessage);
+}
 
 export const mangadexService = {
   // Get popular manga (most followed)
   async getPopularManga(): Promise<Manga[]> {
     try {
-      const response = await api.get<MangaResponse>('/manga', {
+      // IMPORTANT: do NOT start path with '/' so axios baseURL is used
+      const response = await api.get<MangaResponse>('manga', {
         params: {
           'order[followedCount]': 'desc',
           limit: 10,
@@ -28,7 +43,8 @@ export const mangadexService = {
           contentRating: ['safe', 'suggestive'],
         },
       });
-      return response.data.data;
+      const safe = ensureObject<MangaResponse>(response.data, 'Invalid response for popular manga');
+      return ensureArray<Manga>(safe.data);
     } catch (error) {
       console.error('Error fetching popular manga:', error);
       throw new Error('Failed to fetch popular manga');
@@ -38,7 +54,7 @@ export const mangadexService = {
   // Get recently updated manga
   async getRecentlyUpdatedManga(): Promise<Manga[]> {
     try {
-      const response = await api.get<MangaResponse>('/manga', {
+      const response = await api.get<MangaResponse>('manga', {
         params: {
           'order[updatedAt]': 'desc',
           limit: 10,
@@ -46,7 +62,8 @@ export const mangadexService = {
           contentRating: ['safe', 'suggestive'],
         },
       });
-      return response.data.data;
+      const safe = ensureObject<MangaResponse>(response.data, 'Invalid response for recently updated manga');
+      return ensureArray<Manga>(safe.data);
     } catch (error) {
       console.error('Error fetching recently updated manga:', error);
       throw new Error('Failed to fetch recently updated manga');
@@ -56,12 +73,13 @@ export const mangadexService = {
   // Get manga details by ID
   async getMangaById(id: string): Promise<Manga> {
     try {
-      const response = await api.get<{ data: Manga }>(`/manga/${id}`, {
+      const response = await api.get<{ data: Manga }>(`manga/${id}`, {
         params: {
           includes: ['cover_art', 'author', 'artist'],
         },
       });
-      return response.data.data;
+      const safe = ensureObject<{ data: Manga }>(response.data, 'Invalid response for manga details');
+      return safe.data;
     } catch (error) {
       console.error('Error fetching manga details:', error);
       throw new Error('Failed to fetch manga details');
@@ -71,7 +89,7 @@ export const mangadexService = {
   // Get chapters for a manga
   async getMangaChapters(mangaId: string, offset: number = 0): Promise<ChapterResponse> {
     try {
-      const response = await api.get<ChapterResponse>(`/manga/${mangaId}/feed`, {
+      const response = await api.get<ChapterResponse>(`manga/${mangaId}/feed`, {
         params: {
           limit: 100,
           offset,
@@ -81,14 +99,13 @@ export const mangadexService = {
           contentRating: ['safe', 'suggestive', 'erotica'],
         },
       });
-      
-      const validChapters = response.data.data.filter(chapter => 
+      const safe = ensureObject<ChapterResponse>(response.data, 'Invalid response for manga chapters');
+      const validChapters = ensureArray<import('../types').Chapter>(safe.data).filter((chapter) => 
         chapter.attributes.pages > 0 && 
         !chapter.attributes.externalUrl
       );
-      
       return {
-        ...response.data,
+        ...safe,
         data: validChapters
       };
     } catch (error) {
@@ -100,8 +117,8 @@ export const mangadexService = {
   // Get chapter images
   async getChapterImages(chapterId: string): Promise<ChapterImagesResponse> {
     try {
-      const response = await api.get<ChapterImagesResponse>(`/at-home/server/${chapterId}`);
-      return response.data;
+      const response = await api.get<ChapterImagesResponse>(`at-home/server/${chapterId}`);
+      return ensureObject<ChapterImagesResponse>(response.data, 'Invalid response for chapter images');
     } catch (error: any) {
       console.error('Error fetching chapter images:', error);
       throw new Error(`Failed to fetch chapter images: ${error.message}`);
@@ -111,7 +128,7 @@ export const mangadexService = {
   // Search manga by title
   async searchManga(title: string): Promise<Manga[]> {
     try {
-      const response = await api.get<MangaResponse>('/manga', {
+      const response = await api.get<MangaResponse>('manga', {
         params: {
           title,
           limit: 20,
@@ -119,7 +136,8 @@ export const mangadexService = {
           contentRating: ['safe', 'suggestive'],
         },
       });
-      return response.data.data;
+      const safe = ensureObject<MangaResponse>(response.data, 'Invalid response for search');
+      return ensureArray<Manga>(safe.data);
     } catch (error) {
       console.error('Error searching manga:', error);
       throw new Error('Failed to search manga');
@@ -130,7 +148,7 @@ export const mangadexService = {
   async getNewestManga(page: number = 1, limit: number = 10): Promise<MangaResponse> {
     try {
       const offset = (page - 1) * limit;
-      const response = await api.get<MangaResponse>('/manga', {
+      const response = await api.get<MangaResponse>('manga', {
         params: {
           'order[createdAt]': 'desc',
           limit,
@@ -139,7 +157,10 @@ export const mangadexService = {
           contentRating: ['safe', 'suggestive']
         },
       });
-      return response.data;
+      const safe = ensureObject<MangaResponse>(response.data, 'Invalid response for newest manga');
+      // Make sure data is an array to keep downstream safe
+      safe.data = ensureArray<Manga>(safe.data);
+      return safe;
     } catch (error) {
       console.error('Error fetching newest manga:', error);
       throw new Error('Failed to fetch newest manga');
@@ -150,7 +171,7 @@ export const mangadexService = {
   async getUpdatedManga(page: number = 1, limit: number = 10): Promise<MangaResponse> {
     try {
       const offset = (page - 1) * limit;
-      const response = await api.get<MangaResponse>('/manga', {
+      const response = await api.get<MangaResponse>('manga', {
         params: {
           'order[updatedAt]': 'desc',
           limit,
@@ -159,7 +180,9 @@ export const mangadexService = {
           contentRating: ['safe', 'suggestive'],
         },
       });
-      return response.data;
+      const safe = ensureObject<MangaResponse>(response.data, 'Invalid response for updated manga');
+      safe.data = ensureArray<Manga>(safe.data);
+      return safe;
     } catch (error) {
       console.error('Error fetching updated manga:', error);
       throw new Error('Failed to fetch updated manga');
@@ -170,7 +193,7 @@ export const mangadexService = {
   async getPopularMangaPaginated(page: number = 1, limit: number = 10): Promise<MangaResponse> {
     try {
       const offset = (page - 1) * limit;
-      const response = await api.get<MangaResponse>('/manga', {
+      const response = await api.get<MangaResponse>('manga', {
         params: {
           'order[followedCount]': 'desc',
           limit,
@@ -179,7 +202,9 @@ export const mangadexService = {
           contentRating: ['safe', 'suggestive'],
         },
       });
-      return response.data;
+      const safe = ensureObject<MangaResponse>(response.data, 'Invalid response for popular manga (paginated)');
+      safe.data = ensureArray<Manga>(safe.data);
+      return safe;
     } catch (error) {
       console.error('Error fetching popular manga:', error);
       throw new Error('Failed to fetch popular manga');
@@ -220,17 +245,25 @@ export const mangadexService = {
 
   // Helper functions
   getEnglishTitle(manga: Manga): string {
-    const titleObj = manga.attributes.title;
-    return titleObj.en || titleObj['ja-ro'] || titleObj.ja || Object.values(titleObj)[0] || 'Unknown Title';
+    const titleObj: any = manga?.attributes?.title || {};
+    const first = typeof titleObj === 'object' ? Object.values(titleObj)[0] : undefined;
+    return (
+      titleObj.en || titleObj['ja-ro'] || titleObj.ja || (typeof first === 'string' ? first : '') || 'Unknown Title'
+    );
   },
 
   getEnglishDescription(manga: Manga): string {
-    const descObj = manga.attributes.description;
-    return descObj.en || descObj['ja-ro'] || descObj.ja || Object.values(descObj)[0] || 'No description available';
+    const descObj: any = manga?.attributes?.description || {};
+    const first = typeof descObj === 'object' ? Object.values(descObj)[0] : undefined;
+    return (
+      descObj.en || descObj['ja-ro'] || descObj.ja || (typeof first === 'string' ? first : '') || 'No description available'
+    );
   },
 
   getCoverArt(manga: Manga): string | null {
-    const coverRelation = manga.relationships.find((rel: any) => rel.type === 'cover_art');
+    const coverRelation = Array.isArray(manga.relationships)
+      ? manga.relationships.find((rel: any) => rel.type === 'cover_art')
+      : undefined;
     if (coverRelation?.attributes?.fileName) {
       return this.getCoverImageUrl(manga.id, coverRelation.attributes.fileName);
     }
@@ -238,14 +271,14 @@ export const mangadexService = {
   },
 
   getAuthors(manga: Manga): string[] {
-    return manga.relationships
+    return (Array.isArray(manga.relationships) ? manga.relationships : [])
       .filter((rel: any) => rel.type === 'author')
       .map((rel: any) => rel.attributes?.name)
       .filter(Boolean);
   },
 
   getArtists(manga: Manga): string[] {
-    return manga.relationships
+    return (Array.isArray(manga.relationships) ? manga.relationships : [])
       .filter((rel: any) => rel.type === 'artist')
       .map((rel: any) => rel.attributes?.name)
       .filter(Boolean);
