@@ -59,14 +59,18 @@ export const mangadexService = {
     const r = await api.get<MangaResponse>('manga', { params: { 'order[followedCount]': 'desc', limit, offset, 'includes[]': ['cover_art','author','artist'], 'contentRating[]': ['safe','suggestive'] } });
     return r.data;
   },
+  // Build a proxied image URL via our API to ensure proper Referer header on Vercel
   getCoverImageUrl(mangaId: string, fileName: string, size: 'small'|'medium'|'large' = 'medium') {
     const sizeMap = { small: '256', medium: '512', large: '1024' } as const;
-    return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}.${sizeMap[size]}.jpg`;
+    const direct = `https://uploads.mangadex.org/covers/${mangaId}/${fileName}.${sizeMap[size]}.jpg`;
+    return `/api/image-proxy?url=${encodeURIComponent(direct)}`;
   },
   getCoverImageUrlWithFallback(mangaId: string, fileName: string, size: 'small'|'medium'|'large' = 'medium') {
     const sizeMap = { small: '256', medium: '512', large: '1024' } as const;
     const baseUrl = `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`;
-    return [ `${baseUrl}.${sizeMap[size]}.jpg`, `${baseUrl}.jpg`, `${baseUrl}.png`, `${baseUrl}.webp` ];
+    const candidates = [ `${baseUrl}.${sizeMap[size]}.jpg`, `${baseUrl}.jpg`, `${baseUrl}.png`, `${baseUrl}.webp` ];
+    // Wrap all candidates through the proxy
+    return candidates.map(u => `/api/image-proxy?url=${encodeURIComponent(u)}`);
   },
   getChapterPageUrl(baseUrl: string, chapterHash: string, fileName: string, dataSaver = false) {
     const quality = dataSaver ? 'data-saver' : 'data';
