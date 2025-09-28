@@ -39,15 +39,16 @@ export const mangadexService = {
         params: {
           'order[followedCount]': 'desc',
           limit: 10,
-          includes: ['cover_art', 'author', 'artist'],
-          contentRating: ['safe', 'suggestive'],
+          'includes[]': ['cover_art', 'author', 'artist'],
+          'contentRating[]': ['safe', 'suggestive'],
         },
       });
       const safe = ensureObject<MangaResponse>(response.data, 'Invalid response for popular manga');
       return ensureArray<Manga>(safe.data);
     } catch (error) {
       console.error('Error fetching popular manga:', error);
-      throw new Error('Failed to fetch popular manga');
+      // For homepage resilience, return an empty list instead of throwing
+      return [];
     }
   },
 
@@ -58,15 +59,16 @@ export const mangadexService = {
         params: {
           'order[updatedAt]': 'desc',
           limit: 10,
-          includes: ['cover_art', 'author', 'artist'],
-          contentRating: ['safe', 'suggestive'],
+          'includes[]': ['cover_art', 'author', 'artist'],
+          'contentRating[]': ['safe', 'suggestive'],
         },
       });
       const safe = ensureObject<MangaResponse>(response.data, 'Invalid response for recently updated manga');
       return ensureArray<Manga>(safe.data);
     } catch (error) {
       console.error('Error fetching recently updated manga:', error);
-      throw new Error('Failed to fetch recently updated manga');
+      // For homepage resilience, return an empty list instead of throwing
+      return [];
     }
   },
 
@@ -75,7 +77,7 @@ export const mangadexService = {
     try {
       const response = await api.get<{ data: Manga }>(`manga/${id}`, {
         params: {
-          includes: ['cover_art', 'author', 'artist'],
+          'includes[]': ['cover_art', 'author', 'artist'],
         },
       });
       const safe = ensureObject<{ data: Manga }>(response.data, 'Invalid response for manga details');
@@ -94,9 +96,9 @@ export const mangadexService = {
           limit: 100,
           offset,
           'order[chapter]': 'desc',
-          translatedLanguage: ['en'],
-          includes: ['scanlation_group'],
-          contentRating: ['safe', 'suggestive', 'erotica'],
+          'translatedLanguage[]': ['en'],
+          'includes[]': ['scanlation_group'],
+          'contentRating[]': ['safe', 'suggestive', 'erotica'],
         },
       });
       const safe = ensureObject<ChapterResponse>(response.data, 'Invalid response for manga chapters');
@@ -132,8 +134,8 @@ export const mangadexService = {
         params: {
           title,
           limit: 20,
-          includes: ['cover_art', 'author', 'artist'],
-          contentRating: ['safe', 'suggestive'],
+          'includes[]': ['cover_art', 'author', 'artist'],
+          'contentRating[]': ['safe', 'suggestive'],
         },
       });
       const safe = ensureObject<MangaResponse>(response.data, 'Invalid response for search');
@@ -153,8 +155,8 @@ export const mangadexService = {
           'order[createdAt]': 'desc',
           limit,
           offset,
-          includes: ['cover_art', 'author', 'artist'],
-          contentRating: ['safe', 'suggestive']
+          'includes[]': ['cover_art', 'author', 'artist'],
+          'contentRating[]': ['safe', 'suggestive']
         },
       });
       const safe = ensureObject<MangaResponse>(response.data, 'Invalid response for newest manga');
@@ -176,8 +178,8 @@ export const mangadexService = {
           'order[updatedAt]': 'desc',
           limit,
           offset,
-          includes: ['cover_art', 'author', 'artist'],
-          contentRating: ['safe', 'suggestive'],
+          'includes[]': ['cover_art', 'author', 'artist'],
+          'contentRating[]': ['safe', 'suggestive'],
         },
       });
       const safe = ensureObject<MangaResponse>(response.data, 'Invalid response for updated manga');
@@ -198,8 +200,8 @@ export const mangadexService = {
           'order[followedCount]': 'desc',
           limit,
           offset,
-          includes: ['cover_art', 'author', 'artist'],
-          contentRating: ['safe', 'suggestive'],
+          'includes[]': ['cover_art', 'author', 'artist'],
+          'contentRating[]': ['safe', 'suggestive'],
         },
       });
       const safe = ensureObject<MangaResponse>(response.data, 'Invalid response for popular manga (paginated)');

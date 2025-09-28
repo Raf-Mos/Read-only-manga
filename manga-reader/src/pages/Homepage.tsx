@@ -19,19 +19,30 @@ const Homepage: React.FC = () => {
 
   useEffect(() => {
     const fetchInitialData = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        setLoading(true);
-        setError(null);
-        
-        const [popular, recent] = await Promise.all([
+        const [popularResult, recentResult] = await Promise.allSettled([
           mangadexService.getPopularManga(),
-          mangadexService.getRecentlyUpdatedManga()
+          mangadexService.getRecentlyUpdatedManga(),
         ]);
-        
-        setPopularManga(popular);
-        setRecentManga(recent);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+
+        if (popularResult.status === 'fulfilled') {
+          setPopularManga(popularResult.value);
+        } else {
+          console.error('Homepage: popular fetch failed:', popularResult.reason);
+        }
+
+        if (recentResult.status === 'fulfilled') {
+          setRecentManga(recentResult.value);
+        } else {
+          console.error('Homepage: recent fetch failed:', recentResult.reason);
+        }
+
+        if (popularResult.status === 'rejected' && recentResult.status === 'rejected') {
+          const msg = (popularResult.reason?.message || recentResult.reason?.message) || 'Failed to load homepage data';
+          setError(msg);
+        }
       } finally {
         setLoading(false);
       }
@@ -147,6 +158,11 @@ const Homepage: React.FC = () => {
             title="Most Popular"
             icon={<TrendingUp className="h-6 w-6 text-orange-500" />}
           />
+          {popularManga.length === 0 && (
+            <p className="text-sm text-yellow-600 dark:text-yellow-300 mt-2">
+              Couldn’t load popular manga right now.
+            </p>
+          )}
 
           {/* Recently Updated Section */}
           <section>
@@ -161,6 +177,11 @@ const Homepage: React.FC = () => {
                 <MangaCard key={manga.id} manga={manga} />
               ))}
             </div>
+            {recentManga.length === 0 && (
+              <p className="text-sm text-yellow-600 dark:text-yellow-300 mt-2">
+                Couldn’t load recent updates right now.
+              </p>
+            )}
           </section>
         </>
       )}
