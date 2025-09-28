@@ -3,8 +3,8 @@ import { MangaResponse, Manga, ChapterResponse, ChapterImagesResponse } from '..
 
 // Use proxy API in production, direct API in development
 const BASE_URL = process.env.NODE_ENV === 'production' 
-  ? '/api/mangadex' 
-  : 'https://api.mangadex.org';
+  ? '/api/mangadex/' 
+  : 'https://api.mangadex.org/';
 
 
 console.log('Environment:', process.env.NODE_ENV);
@@ -18,6 +18,29 @@ const api = axios.create({
     Accept: 'application/json',
   },
   withCredentials: false,
+  transformResponse: [
+    function (data) {
+      // Axios returns data as a string if content-type isn't exactly JSON.
+      // Try to parse safely.
+      try {
+        if (typeof data === 'string') {
+          return JSON.parse(data);
+        }
+        return data;
+      } catch (_) {
+        return data; // leave as-is; callers will guard
+      }
+    },
+  ],
+});
+
+// Debug: log resolved request URL (helps verify baseURL joining)
+api.interceptors.request.use((config) => {
+  try {
+    const full = (config.baseURL || '') + (config.url || '');
+    console.debug('[mangadex api] ->', full);
+  } catch (_) {}
+  return config;
 });
 
 // Small runtime helpers to validate upstream responses
@@ -26,7 +49,17 @@ function ensureArray<T>(value: any, fallback: T[] = []): T[] {
 }
 
 function ensureObject<T extends object>(value: any, errorMessage: string): T {
-  if (value && typeof value === 'object') return value as T;
+  if (!value) throw new Error(errorMessage);
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      if (parsed && typeof parsed === 'object') return parsed as T;
+    } catch (_) {
+      // fall through to error
+    }
+    throw new Error(errorMessage);
+  }
+  if (typeof value === 'object') return value as T;
   throw new Error(errorMessage);
 }
 
