@@ -4,13 +4,13 @@
 Your manga reader app was designed for Vercel deployment but you're hosting it on Hostinger. The main issues were:
 
 1. **Serverless Functions**: Vercel supports serverless functions (`/api/` directory), but Hostinger is traditional hosting that doesn't support this.
-2. **CORS Issues**: Direct API calls to MangaDx from browser get blocked by CORS policy.
+2. **CORS Issues**: Direct API calls to MangaeDx from browser get blocked by CORS policy.
 3. **Environment Detection**: The app couldn't properly detect the hosting platform.
 
 ## What Was Fixed
 
 ### 1. Enhanced API Service Configuration
-- **File**: `src/services/mangadx-enhanced.ts` (new enhanced version)
+- **File**: `src/services/mangadex-enhanced.ts` (new enhanced version)
 - **Changes**:
   - Added platform detection (Vercel vs Hostinger vs Development)
   - Implemented CORS proxy fallback mechanism
@@ -76,7 +76,7 @@ The enhanced service includes multiple fallback strategies:
 If the CORS proxy approach doesn't work reliably:
 
 ### Option 1: Use Your Own Backend
-Create a simple backend server (Node.js, PHP, Python) that proxies requests to MangaDx API.
+Create a simple backend server (Node.js, PHP, Python) that proxies requests to MangaDex API.
 
 ### Option 2: Cloudflare Workers
 Use Cloudflare Workers to create a CORS proxy (if your domain uses Cloudflare).
@@ -105,7 +105,7 @@ Vercel provides serverless functions that handle CORS issues automatically.
 - `public/_redirects` - Netlify-style redirects (backup)
 
 ✅ **Original Files** (kept for reference):
-- `api/mangadx/[...path].js` - Vercel serverless function
+- `api/mangadex/[...path].js` - Vercel serverless function
 - `vercel.json` - Vercel configuration
 
 ## Next Steps

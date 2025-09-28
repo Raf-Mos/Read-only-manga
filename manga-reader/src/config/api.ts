@@ -20,7 +20,7 @@ export const config = {
 
     // Try Vercel serverless functions first
     if (this.isVercel) {
-      return '/api/mangadx';
+      return '/api/mangadex';
     }
 
     // For Hostinger or other traditional hosts, try different approaches
@@ -29,7 +29,7 @@ export const config = {
       return this.getProductionApiUrl();
     }
 
-    return 'https://api.mangadx.org';
+    return 'https://api.mangadex.org';
   },
 
   // Get production API URL with fallbacks
@@ -43,7 +43,7 @@ export const config = {
     ];
     
     // For now, return direct API and handle CORS in the service
-    return 'https://api.mangadx.org';
+    return 'https://api.mangadex.org';
   }
 };
 

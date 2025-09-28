@@ -16,16 +16,16 @@ const isHostinger = typeof window !== 'undefined' && (
 // Enhanced URL configuration for different hosting platforms
 const BASE_URL = (() => {
   if (process.env.NODE_ENV === 'development') {
-    return 'https://api.mangadx.org';
+    return 'https://api.mangadex.org';
   }
   
   // In production, use different strategies based on hosting platform
   if (isVercel) {
-    return '/api/mangadx'; // Use Vercel serverless function
+    return '/api/mangadex'; // Use Vercel serverless function
   }
   
   // For traditional hosting (like Hostinger), use direct API
-  return 'https://api.mangadx.org';
+  return 'https://api.mangadex.org';
 })();
 
 console.log('Environment:', process.env.NODE_ENV);
@@ -65,7 +65,7 @@ const handleApiError = async (error: AxiosError, originalConfig: any, retryCount
       const proxyUrl = corsProxies[retryCount];
       const originalUrl = originalConfig.url.startsWith('http') 
         ? originalConfig.url 
-        : `https://api.mangadx.org${originalConfig.url}`;
+        : `https://api.mangadex.org${originalConfig.url}`;
       
       try {
         const response = await axios({
@@ -285,7 +285,7 @@ export const mangadxService = {
       medium: '512', 
       large: '1024'
     };
-    return `https://uploads.mangadx.org/covers/${mangaId}/${fileName}.${sizeMap[size]}.jpg`;
+    return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}.${sizeMap[size]}.jpg`;
   },
 
   // Get cover image URL with fallback
@@ -295,7 +295,7 @@ export const mangadxService = {
       medium: '512', 
       large: '1024'
     };
-    const baseUrl = `https://uploads.mangadx.org/covers/${mangaId}/${fileName}`;
+    const baseUrl = `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`;
     return [
       `${baseUrl}.${sizeMap[size]}.jpg`,
       `${baseUrl}.jpg`,
