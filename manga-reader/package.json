@@ -2,7 +2,6 @@
   "name": "manga-reader",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://api.mangadex.org",
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.8.0",
@@ -25,8 +24,6 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "build:hostinger": "REACT_APP_HOSTING_PLATFORM=hostinger REACT_APP_HOSTINGER=true react-scripts build",
-    "build:vercel": "REACT_APP_HOSTING_PLATFORM=vercel REACT_APP_VERCEL=true react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "serve": "serve -s build"

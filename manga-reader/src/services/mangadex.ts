@@ -1,43 +1,18 @@
 import axios from 'axios';
 import { MangaResponse, Manga, ChapterResponse, ChapterImagesResponse } from '../types';
 
-// Detect if we're running on Vercel (has serverless functions) or traditional hosting like Hostinger
-const isVercel = typeof window !== 'undefined' && (
-  window.location.hostname.includes('vercel.app') ||
-  window.location.hostname.includes('.vercel.app') ||
-  process.env.REACT_APP_VERCEL === 'true'
-);
-
-// Use different base URLs based on hosting platform
-const BASE_URL = (() => {
-  if (process.env.NODE_ENV === 'development') {
-    return 'https://api.mangadex.org';
-  }
-  
-  // In production, use proxy only if on Vercel, otherwise use direct API
-  if (isVercel) {
-    return '/api/mangadex';
-  }
-  
-  // For traditional hosting (like Hostinger), use direct API with CORS proxy
-  return 'https://cors-anywhere.herokuapp.com/https://api.mangadex.org';
-})();
+// Use proxy API in production, direct API in development
+const BASE_URL = process.env.NODE_ENV === 'production' 
+  ? '/api/mangadex' 
+  : 'https://api.mangadex.org';
 
 console.log('Environment:', process.env.NODE_ENV);
-console.log('Is Vercel:', isVercel);
 console.log('API Base URL:', BASE_URL);
 
 // Create axios instance with default config
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json',
-    // Add headers for CORS proxy if using traditional hosting
-    ...((!isVercel && process.env.NODE_ENV === 'production') && {
-      'X-Requested-With': 'XMLHttpRequest'
-    })
-  }
+  timeout: 30000, // Increased timeout for Vercel
 });
 
 export const mangadexService = {
