@@ -1,43 +1,4 @@
-const https = require('https');
 const { URL } = require('url');
-
-function makeRequest(url) {
-  return new Promise((resolve, reject) => {
-    const request = https.get(url, (response) => {
-      let data = '';
-      
-      response.on('data', chunk => {
-        data += chunk;
-      });
-      
-      response.on('end', () => {
-        try {
-          const jsonData = JSON.parse(data);
-          resolve({
-            ok: response.statusCode >= 200 && response.statusCode < 300,
-            status: response.statusCode,
-            statusText: response.statusMessage,
-            json: () => Promise.resolve(jsonData)
-          });
-        } catch (error) {
-          console.error('JSON Parse Error:', error.message);
-          console.error('Response data:', data.substring(0, 500)); // Log first 500 chars
-          reject(new Error('Invalid JSON response'));
-        }
-      });
-    });
-
-    request.on('error', (error) => {
-      console.error('Request Error:', error.message);
-      reject(error);
-    });
-
-    request.setTimeout(30000, () => {
-      request.destroy();
-      reject(new Error('Request timeout'));
-    });
-  });
-}
 
 module.exports = async function handler(req, res) {
   // Enable CORS
@@ -80,17 +41,39 @@ module.exports = async function handler(req, res) {
 
     console.log('Proxying request to:', url.toString());
 
-    // Make the request to mangadex API using makeRequest
-    const response = await makeRequest(url.toString());
+    // Make the request to MangaDex API using fetch with required headers
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        // MangaDex requires a proper User-Agent and no Via header
+        'User-Agent': 'ReadOnlyManga/1.0 (+https://read-only-manga.vercel.app)',
+        'Accept': 'application/json'
+      }
+    });
+
+    const contentType = response.headers.get('content-type') || '';
 
     if (!response.ok) {
-      console.error(`MangaDex API error: ${response.status} ${response.statusText}`);
-      throw new Error(`MangaDex API responded with status: ${response.status}`);
+      const text = await response.text();
+      console.error('MangaDex API error:', response.status, response.statusText);
+      console.error('Body snippet:', text.slice(0, 500));
+      try {
+        const json = JSON.parse(text);
+        return res.status(response.status).json(json);
+      } catch (_) {
+        return res.status(response.status).json({ error: 'Upstream error', status: response.status });
+      }
     }
 
-    const data = await response.json();
-    console.log('Successfully fetched data from MangaDex API');
-    res.status(200).json(data);
+    if (contentType.includes('application/json')) {
+      const data = await response.json();
+      console.log('Successfully fetched data from MangaDex API');
+      return res.status(200).json(data);
+    } else {
+      const text = await response.text();
+      console.warn('Unexpected content-type:', contentType);
+      return res.status(200).send(text);
+    }
   } catch (error) {
     console.error('Proxy error:', error);
     console.error('Stack trace:', error.stack);
