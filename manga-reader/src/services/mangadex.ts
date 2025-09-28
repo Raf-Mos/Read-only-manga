@@ -2,11 +2,10 @@ import axios from 'axios';
 import { MangaResponse, Manga, ChapterResponse, ChapterImagesResponse } from '../types';
 
 // Use proxy API in production, direct API in development
-// const BASE_URL = process.env.NODE_ENV === 'production' 
-//   ? '/api/mangadex' 
-//   : 'https://api.mangadex.org';
+const BASE_URL = process.env.NODE_ENV === 'production' 
+  ? '/api/mangadex' 
+  : 'https://api.mangadex.org';
 
-const BASE_URL = 'https://api.mangadex.org';
 
 console.log('Environment:', process.env.NODE_ENV);
 console.log('API Base URL:', BASE_URL);
