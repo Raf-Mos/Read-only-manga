@@ -21,25 +21,35 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    // Check localStorage for saved theme preference
-    const saved = localStorage.getItem('darkMode');
-    if (saved !== null) {
-      return JSON.parse(saved);
+    try {
+      if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+        const saved = localStorage.getItem('darkMode');
+        if (saved !== null) {
+          return JSON.parse(saved);
+        }
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+    } catch (_) {
+      // ignore and fallback below
     }
-    // Default to system preference
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return false;
   });
 
   useEffect(() => {
-    // Apply theme to document root
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    try {
+      if (typeof document !== 'undefined') {
+        if (isDarkMode) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
+      }
+    } catch (_) {
+      // ignore write errors
     }
-    
-    // Save preference to localStorage
-    localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
   }, [isDarkMode]);
 
   const toggleDarkMode = () => {
