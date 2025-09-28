@@ -1,30 +1,36 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { MangaResponse, Manga, ChapterResponse, ChapterImagesResponse } from '../types';
 
-// Detect if we're running on Vercel (has serverless functions) or traditional hosting like Hostinger
+// Detect hosting platform
 const isVercel = typeof window !== 'undefined' && (
   window.location.hostname.includes('vercel.app') ||
   window.location.hostname.includes('.vercel.app') ||
   process.env.REACT_APP_VERCEL === 'true'
 );
 
-// Use different base URLs based on hosting platform
+const isHostinger = typeof window !== 'undefined' && (
+  window.location.hostname.includes('.hostingerapp.com') ||
+  process.env.REACT_APP_HOSTINGER === 'true'
+);
+
+// Enhanced URL configuration for different hosting platforms
 const BASE_URL = (() => {
   if (process.env.NODE_ENV === 'development') {
-    return 'https://api.mangadex.org';
+    return 'https://api.mangadx.org';
   }
   
-  // In production, use proxy only if on Vercel, otherwise use direct API
+  // In production, use different strategies based on hosting platform
   if (isVercel) {
-    return '/api/mangadex';
+    return '/api/mangadx'; // Use Vercel serverless function
   }
   
-  // For traditional hosting (like Hostinger), use direct API with CORS proxy
-  return 'https://cors-anywhere.herokuapp.com/https://api.mangadex.org';
+  // For traditional hosting (like Hostinger), use direct API
+  return 'https://api.mangadx.org';
 })();
 
 console.log('Environment:', process.env.NODE_ENV);
 console.log('Is Vercel:', isVercel);
+console.log('Is Hostinger:', isHostinger);
 console.log('API Base URL:', BASE_URL);
 
 // Create axios instance with default config
@@ -33,14 +39,76 @@ const api = axios.create({
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
-    // Add headers for CORS proxy if using traditional hosting
-    ...((!isVercel && process.env.NODE_ENV === 'production') && {
-      'X-Requested-With': 'XMLHttpRequest'
-    })
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
   }
 });
 
-export const mangadexService = {
+// Enhanced error handling with fallback mechanisms
+const handleApiError = async (error: AxiosError, originalConfig: any, retryCount = 0): Promise<any> => {
+  console.error('API Error:', error.message, error.config?.url);
+  
+  // If it's a CORS error and we're in production on traditional hosting
+  if ((error.message.includes('CORS') || error.message.includes('Network Error')) && 
+      retryCount < 2 && 
+      process.env.NODE_ENV === 'production' && 
+      !isVercel) {
+    
+    console.log(`CORS error detected, trying with CORS proxy (attempt ${retryCount + 1})...`);
+    
+    // Try with different CORS proxy services
+    const corsProxies = [
+      'https://api.allorigins.win/raw?url=',
+      'https://thingproxy.freeboard.io/fetch/',
+    ];
+    
+    if (retryCount < corsProxies.length) {
+      const proxyUrl = corsProxies[retryCount];
+      const originalUrl = originalConfig.url.startsWith('http') 
+        ? originalConfig.url 
+        : `https://api.mangadx.org${originalConfig.url}`;
+      
+      try {
+        const response = await axios({
+          ...originalConfig,
+          baseURL: '',
+          url: `${proxyUrl}${encodeURIComponent(originalUrl)}`,
+          timeout: 45000,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log('CORS proxy request successful');
+        return response;
+      } catch (proxyError) {
+        console.error(`CORS proxy ${proxyUrl} failed:`, proxyError);
+        // Try next proxy
+        return handleApiError(error, originalConfig, retryCount + 1);
+      }
+    }
+  }
+  
+  // If all retry attempts failed, throw a user-friendly error
+  const userMessage = error.message.includes('CORS') || error.message.includes('Network Error')
+    ? 'Unable to connect to the manga API. This may be due to network restrictions on your hosting provider.'
+    : `API request failed: ${error.message}`;
+    
+  throw new Error(userMessage);
+};
+
+// Add response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalConfig = error.config;
+    if (!originalConfig._retry) {
+      originalConfig._retry = true;
+      return handleApiError(error, originalConfig);
+    }
+    return Promise.reject(error);
+  }
+);
+
+export const mangadxService = {
   // Get popular manga (most followed)
   async getPopularManga(): Promise<Manga[]> {
     try {
@@ -217,7 +285,7 @@ export const mangadexService = {
       medium: '512', 
       large: '1024'
     };
-    return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}.${sizeMap[size]}.jpg`;
+    return `https://uploads.mangadx.org/covers/${mangaId}/${fileName}.${sizeMap[size]}.jpg`;
   },
 
   // Get cover image URL with fallback
@@ -227,7 +295,7 @@ export const mangadexService = {
       medium: '512', 
       large: '1024'
     };
-    const baseUrl = `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`;
+    const baseUrl = `https://uploads.mangadx.org/covers/${mangaId}/${fileName}`;
     return [
       `${baseUrl}.${sizeMap[size]}.jpg`,
       `${baseUrl}.jpg`,
@@ -276,4 +344,4 @@ export const mangadexService = {
   }
 };
 
-export default mangadexService;
+export default mangadxService;

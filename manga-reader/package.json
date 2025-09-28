@@ -25,6 +25,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:hostinger": "REACT_APP_HOSTING_PLATFORM=hostinger REACT_APP_HOSTINGER=true react-scripts build",
+    "build:vercel": "REACT_APP_HOSTING_PLATFORM=vercel REACT_APP_VERCEL=true react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "serve": "serve -s build"

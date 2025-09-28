@@ -1,0 +1,3 @@
+# Hostinger redirect rules for API proxy (if supported)
+/api/mangadex/*  https://api.mangadex.org/:splat  200
+/*  /index.html  200
